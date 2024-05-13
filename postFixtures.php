@@ -19,7 +19,7 @@ function postFixtures($conn){
         exit;
     }
 
-    /*$jwt = null
+    $jwt = null;
     $headers = apache_request_headers();
 
     if (isset($headers['Authorization'])){
@@ -30,27 +30,50 @@ function postFixtures($conn){
             exit;
         }
 
-        $signature = hash_hmac('sha256', str_replace(['+', '/', '='], ['-', '_', ''], $token_parts[0]))
-    }*/
+        
+        $signature = hash_hmac('sha256', str_replace(['+', '/', '='], ['-', '_', ''], $token_parts[0]), ".", $token_parts[1], "." ,$token_parts[2]);
+        $sig = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
-    $sql = 'select * from highlights order by id desc';
-    $result = mysqli_query($conn, $sql);
-
-    if($result){
-        header("Content-Type: JSON");
-        $i = 0;
-        $response = [];
-        while($row = mysqli_fetch_assoc($result)){
-            $response[$i]['id']=$row['id'];
-            $response[$i]['Team1']=$row['Team1'];
-            $response[$i]['Team2']=$row['Team2'];
-            $response[$i]['Date']=$row['Date'];
-            $response[$i]['Time']=$row['Time'];
-            $i++;
+        if($sig !== $token_parts[2]){
+            http_response_code(401);
+            exit;
         }
 
-        echo json_encode($response, JSON_PRETTY_PRINT);
+    }else {
+        http_response_code(401);
+        exit;
     }
+
+    $postdata = file_get_contents("php://input");
+
+    if(isset($postdata) && !empty($postdata)){
+        $request = json_decode($postdata);
+
+        if (trim($request -> team1) === '' || trim($request -> team2) === '' || trim($request -> date) === '' || trim($request -> time) === ''){
+            return http_response_code(400);
+        }
+        $team1 = mysqli_real_escape_string($conn, trim($request->team1));
+        $team2 = mysqli_real_escape_string($conn, trim($request->team2));
+        $date = mysqli_real_escape_string($conn, trim($request->date));
+        $time = mysqli_real_escape_string($conn, trim($request->time));
+
+        $sql = "insert into highlights(Team1, Team2, Date, Time) values ('{$team1}','{$team2}','{$date}','{$time}')";
+
+        if (mysqli_query($conn,$sql)){
+            http_response_code(201);
+            $fixture = [
+                'team1' => $team1,
+                'team2' => $team2,
+                'date' => $date,
+                'time' => $time
+            ];
+            echo json_encode(['data'=>$offer]);
+        }
+        else {
+            http_response_code(400);
+        }
+    }
+
 }
 
 postFixtures($conn);
