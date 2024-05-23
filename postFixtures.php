@@ -19,7 +19,7 @@ function postFixtures($conn){
         exit;
     }
 
-    $jwt = null;
+    /*$jwt = null;
     $headers = apache_request_headers();
 
     if (isset($headers['Authorization'])){
@@ -42,7 +42,7 @@ function postFixtures($conn){
     }else {
         http_response_code(401);
         exit;
-    }
+    }*/
 
     $postdata = file_get_contents("php://input");
 
