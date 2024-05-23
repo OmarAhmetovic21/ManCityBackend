@@ -4,7 +4,7 @@ require_once 'databaseConnect.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Method: POST");
-header("Access-Control-Allow-Headers: Authorization");
+//header("Access-Control-Allow-Headers: Authorization");
 header("Content-Type: application/json; charset-UTF-8");
 header("Access-Control-Allow-Headers: *");
 
@@ -57,7 +57,7 @@ function postFixtures($conn){
         $date = mysqli_real_escape_string($conn, trim($request->date));
         $time = mysqli_real_escape_string($conn, trim($request->time));
 
-        $sql = "insert into highlights(Team1, Team2, Date, Time) values ('{$team1}','{$team2}','{$date}','{$time}')";
+        $sql = "insert into fixtures(Team1, Team2, Date, Time) values ('{$team1}','{$team2}','{$date}','{$time}')";
 
         if (mysqli_query($conn,$sql)){
             http_response_code(201);
@@ -67,7 +67,7 @@ function postFixtures($conn){
                 'date' => $date,
                 'time' => $time
             ];
-            echo json_encode(['data'=>$offer]);
+            echo json_encode(['data'=>$fixture]);
         }
         else {
             http_response_code(400);
