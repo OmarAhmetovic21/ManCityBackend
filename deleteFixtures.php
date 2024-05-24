@@ -3,6 +3,7 @@ require_once 'databaseConnect.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: DELETE");
 header("Access-Control-Allow-Headers: *");
+//header("Access-Control-Allow-Headers: Authorization");
 
 function deleteFixtures($conn){
     if($_SERVER["REQUEST_METHOD"] == "OPTIONS"){
